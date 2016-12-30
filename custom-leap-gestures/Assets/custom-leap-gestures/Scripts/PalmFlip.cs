@@ -12,7 +12,7 @@ namespace CustomLeapGestures
 		public float period = .1f;
 
 		[Tooltip("The maximum amount of time in seconds allowed to be used to flip palm. ")]
-		public float maximumFlipTime = .5f;
+		public float maximumFlipTime = .1f;
 
 		[AutoFind(AutoFindLocations.Parents)]
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
@@ -71,7 +71,9 @@ namespace CustomLeapGestures
 			Hand hand;
 			Vector3 normal;
 			bool isPalmDown = false;
-			float angleTo;
+			bool isPalmUp = false;
+			float angleToDown;
+			float angleToUp;
 			float flipTime = 0;
 			while (true)
 			{
@@ -81,12 +83,13 @@ namespace CustomLeapGestures
 					if (hand != null)
 					{
 						normal = hand.PalmNormal.ToVector3();
-						angleTo = Vector3.Angle(normal, Vector3.down);
-						if (angleTo <= onAngleDown)
+						angleToDown = Vector3.Angle(normal, Vector3.down);
+						angleToUp = Vector3.Angle(normal, Vector3.up);
+						if (angleToDown <= onAngleDown)
 						{
 							isPalmDown = true;
 						}
-						else if (angleTo > offAngleDown)
+						else if (angleToDown > offAngleDown)
 						{
 							if (isPalmDown)
 							{
@@ -99,15 +102,20 @@ namespace CustomLeapGestures
 						{
 							flipTime += 1 * Time.deltaTime;
 							normal = hand.PalmNormal.ToVector3();
-							angleTo = Vector3.Angle(normal, Vector3.up);
-							if (angleTo <= onAngleUp && flipTime <= maximumFlipTime)
+							if (angleToUp <= onAngleUp && flipTime <= maximumFlipTime)
 							{
 								Activate();
+								flipTime = 0;
+								isPalmFlipping = false;
+								isPalmUp = true;
+								Debug.Log("I just flipped palm");
 							}
-							else if (angleTo > offAngleUp)
-							{
-								Deactivate();
-							}
+						}
+						if (angleToUp > offAngleUp && isPalmUp)
+						{
+							Deactivate();
+							isPalmUp = false;
+							Debug.Log("I removed palm from up-position");
 						}
 						if (flipTime >= maximumFlipTime)
 						{
