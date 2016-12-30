@@ -81,7 +81,7 @@ namespace CustomLeapGestures
 					if (hand != null)
 					{
 						normal = hand.PalmNormal.ToVector3();
-						angleTo = Vector3.Angle(normal, Vector3.forward);
+						angleTo = Vector3.Angle(normal, Vector3.down);
 						if (angleTo <= onAngleDown)
 						{
 							isPalmDown = true;
@@ -99,7 +99,7 @@ namespace CustomLeapGestures
 						{
 							flipTime += 1 * Time.deltaTime;
 							normal = hand.PalmNormal.ToVector3();
-							angleTo = Vector3.Angle(normal, Vector3.forward);
+							angleTo = Vector3.Angle(normal, Vector3.up);
 							if (angleTo <= onAngleUp && flipTime <= maximumFlipTime)
 							{
 								Activate();
