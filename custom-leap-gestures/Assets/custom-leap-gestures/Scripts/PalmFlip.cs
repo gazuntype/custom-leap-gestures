@@ -35,6 +35,7 @@ namespace CustomLeapGestures
 		public float offAngleUp = 65;
 
 		bool isPalmFlipping = false;
+		bool isPalmDown = false;
 
 		private IEnumerator watcherCoroutine;
 
@@ -70,7 +71,6 @@ namespace CustomLeapGestures
 		{
 			Hand hand;
 			Vector3 normal;
-			bool isPalmDown = false;
 			bool isPalmUp = false;
 			float angleToDown;
 			float angleToUp;
@@ -135,6 +135,10 @@ namespace CustomLeapGestures
 			{
 				Color centerColor;
 				if (IsActive)
+				{
+					centerColor = Color.green;
+				}
+				else if (isPalmDown)
 				{
 					centerColor = Color.green;
 				}
