@@ -14,4 +14,4 @@ To use these scripts, Leap Motion's SDKs must be installed and their core assets
 Simply import the unitypackage into your project and add any of the gestures you want as components to your Leap Motion hands. Fill in the necessary variables.
 
 ## Contribution
-Comments and bugs should please be mentioned. Also, if you have any custom detection scripts, don't hesitate to commit it to the folder.
+Comments and bugs should please be mentioned. Also, if you have any custom detection scripts, don't hesitate to commit it to the scripts folder that can be found in the root folder of the repo.
