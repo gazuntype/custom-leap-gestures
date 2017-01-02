@@ -34,6 +34,7 @@ namespace CustomLeapGestures
 		[Range(0, 360)]
 		public float offAngleUp = 65;
 
+		float flipTime = 0;
 		bool isPalmFlipping = false;
 		bool isPalmDown = false;
 
@@ -74,7 +75,6 @@ namespace CustomLeapGestures
 			bool isPalmUp = false;
 			float angleToDown;
 			float angleToUp;
-			float flipTime = 0;
 			while (true)
 			{
 				if (handModel != null)

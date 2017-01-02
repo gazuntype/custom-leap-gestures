@@ -21,17 +21,21 @@ namespace CustomLeapGestures
 
 		[Tooltip("The minimum angle in degrees the wrist has to rotate to be considered a wave")]
 		[Range(0, 180)]
-		public float wristAngle = 30f;
+		public float wristAngle = 60f;
 
 		[Tooltip("The maximum amount of time in seconds allowed to be used to complete a wave")]
-		public float waveTime = .5f;
+		public float maximumWaveTime = .5f;
 
 		[AutoFind(AutoFindLocations.Parents)]
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
 		public IHandModel handModel = null;
 
+		float waveTime = 0;
+
 		private bool isFingerPointingUp = false;
 		private bool areFingersExtended = false;
+		private bool hasBegunWave = false;
+		private bool isWaving = false;
 
 		private PointingState thumb = PointingState.Extended;
 		private PointingState index = PointingState.Extended;
@@ -59,7 +63,7 @@ namespace CustomLeapGestures
 
 		void Update()
 		{
-
+			WaveWatcher();
 		}
 
 		void OnEnable()
@@ -141,7 +145,42 @@ namespace CustomLeapGestures
 
 		void WaveWatcher()
 		{
+			Hand hand;
+			Vector3 fingerDirection;
+			Vector3 targetDirection;
+			float angleTo;
 
+			if (handModel != null)
+			{
+				hand = handModel.GetLeapHand();
+				if (hand != null)
+				{
+					targetDirection = Vector3.up;
+					fingerDirection = hand.Fingers[2].Bone(Bone.BoneType.TYPE_DISTAL).Direction.ToVector3();
+					angleTo = Vector3.Angle(fingerDirection, targetDirection);
+					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
+					{
+						hasBegunWave = true;
+						Debug.Log("hasBegunWave = " + hasBegunWave);
+					}
+					if (hasBegunWave && !isFingerPointingUp)
+					{
+						hasBegunWave = false;
+						isWaving = true;
+						Debug.Log("isWaving = " + isWaving);
+					}
+					if (isWaving && angleTo < wristAngle)
+					{
+						waveTime += Time.deltaTime;
+					}
+					else if (isWaving && angleTo >= wristAngle)
+					{
+						waveTime = 0;
+						isWaving = false;
+						Debug.Log("I just did a single wave");
+					}
+				}
+			}
 		}
 
 		private bool matchFingerState(Finger finger, PointingState requiredState)
