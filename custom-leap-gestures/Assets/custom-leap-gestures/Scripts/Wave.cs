@@ -13,11 +13,11 @@ namespace CustomLeapGestures
 
 		[Tooltip("The angle in degrees of the fingers' pointing direction from the up direction in which to begin wave")]
 		[Range(0, 360)]
-		public float OnAngle = 30f;
+		public float handOnAngle = 30f;
 
 		[Tooltip("The angle in degrees of the fingers' point direction from the up direction in which to start tracking wave")]
 		[Range(0, 360)]
-		public float OffAngle = 45f;
+		public float handOffAngle = 45f;
 
 		[AutoFind(AutoFindLocations.Parents)]
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
@@ -26,15 +26,10 @@ namespace CustomLeapGestures
 		private bool isFingerPointingUp = false;
 		private bool areFingersExtended = false;
 
-		/** The required thumb state. */
 		private PointingState thumb = PointingState.Extended;
-		/** The required index finger state. */
 		private PointingState index = PointingState.Extended;
-		/** The required middle finger state. */
 		private PointingState middle = PointingState.Extended;
-		/** The required ring finger state. */
 		private PointingState ring = PointingState.Extended;
-		/** The required pinky finger state. */
 		private PointingState pinky = PointingState.Extended;
 
 		private IEnumerator extendedWatcherCoroutine;
@@ -43,9 +38,9 @@ namespace CustomLeapGestures
 
 		void OnValidate()
 		{
-			if (OffAngle < OnAngle)
+			if (handOffAngle < handOnAngle)
 			{
-				OffAngle = OnAngle;
+				handOffAngle = handOnAngle;
 			}
 		}
 
@@ -88,11 +83,11 @@ namespace CustomLeapGestures
 						targetDirection = Vector3.up;
 						fingerDirection = hand.Fingers[2].Bone(Bone.BoneType.TYPE_DISTAL).Direction.ToVector3();
 						float angleTo = Vector3.Angle(fingerDirection, targetDirection);
-						if (handModel.IsTracked && angleTo <= OnAngle)
+						if (handModel.IsTracked && angleTo <= handOnAngle)
 						{
 							isFingerPointingUp = true;
 						}
-						else if (!handModel.IsTracked || angleTo >= OffAngle)
+						else if (!handModel.IsTracked || angleTo >= handOffAngle)
 						{
 							isFingerPointingUp = false;
 						}
