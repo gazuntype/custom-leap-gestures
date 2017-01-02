@@ -53,7 +53,7 @@ namespace CustomLeapGestures
 
 		private void Awake()
 		{
-			watcherCoroutine = palmWatcher();
+			watcherCoroutine = PalmWatcher();
 		}
 
 		private void OnEnable()
@@ -67,7 +67,7 @@ namespace CustomLeapGestures
 			Deactivate();
 		}
 
-		private IEnumerator palmWatcher()
+		private IEnumerator PalmWatcher()
 		{
 			Hand hand;
 			Vector3 normal;
