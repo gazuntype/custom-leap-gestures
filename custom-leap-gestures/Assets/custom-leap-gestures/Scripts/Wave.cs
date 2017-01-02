@@ -23,6 +23,9 @@ namespace CustomLeapGestures
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
 		public IHandModel handModel = null;
 
+		private bool isFingerPointingUp = false;
+		private bool areFingersExtended = false;
+
 		/** The required thumb state. */
 		private PointingState thumb = PointingState.Extended;
 		/** The required index finger state. */
@@ -55,11 +58,13 @@ namespace CustomLeapGestures
 		void OnEnable()
 		{
 			StartCoroutine(extendedWatcherCoroutine);
+			StartCoroutine(fingerWatcherCoroutine);
 		}
 
 		void OnDisable()
 		{
 			StopCoroutine(extendedWatcherCoroutine);
+			StopCoroutine(fingerWatcherCoroutine);
 			Deactivate();
 		}
 
@@ -80,11 +85,11 @@ namespace CustomLeapGestures
 						float angleTo = Vector3.Angle(fingerDirection, targetDirection);
 						if (handModel.IsTracked && angleTo <= OnAngle)
 						{
-							Activate();
+							isFingerPointingUp = true;
 						}
 						else if (!handModel.IsTracked || angleTo >= OffAngle)
 						{
-							Deactivate();
+							isFingerPointingUp = false;
 						}
 					}
 				}
@@ -111,11 +116,11 @@ namespace CustomLeapGestures
 
 						if (handModel.IsTracked && fingerState)
 						{
-							Activate();
+							areFingersExtended = true;
 						}
 						else if (!handModel.IsTracked || !fingerState)
 						{
-							Deactivate();
+							areFingersExtended = false;
 						}
 					}
 				}
