@@ -13,11 +13,11 @@ namespace CustomLeapGestures
 
 		[Tooltip("The angle in degrees of the fingers' pointing direction from the up direction in which to begin wave")]
 		[Range(0, 360)]
-		public float OnAngle = 15f;
+		public float OnAngle = 30f;
 
 		[Tooltip("The angle in degrees of the fingers' point direction from the up direction in which to start tracking wave")]
 		[Range(0, 360)]
-		public float OffAngle = 25f;
+		public float OffAngle = 45f;
 
 		[AutoFind(AutoFindLocations.Parents)]
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
@@ -53,6 +53,11 @@ namespace CustomLeapGestures
 		{
 			extendedWatcherCoroutine = ExtendedFingerWatcher();
 			fingerWatcherCoroutine = FingerPointingWatcher();
+		}
+
+		void Update()
+		{
+
 		}
 
 		void OnEnable()
