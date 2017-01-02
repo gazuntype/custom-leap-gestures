@@ -19,6 +19,13 @@ namespace CustomLeapGestures
 		[Range(0, 360)]
 		public float handOffAngle = 45f;
 
+		[Tooltip("The minimum angle in degrees the wrist has to rotate to be considered a wave")]
+		[Range(0, 180)]
+		public float wristAngle = 30f;
+
+		[Tooltip("The maximum amount of time in seconds allowed to be used to complete a wave")]
+		public float waveTime = .5f;
+
 		[AutoFind(AutoFindLocations.Parents)]
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
 		public IHandModel handModel = null;
@@ -33,8 +40,8 @@ namespace CustomLeapGestures
 		private PointingState pinky = PointingState.Extended;
 
 		private IEnumerator extendedWatcherCoroutine;
-
 		private IEnumerator fingerWatcherCoroutine;
+
 
 		void OnValidate()
 		{
@@ -132,6 +139,11 @@ namespace CustomLeapGestures
 			}
 		}
 
+		void WaveWatcher()
+		{
+
+		}
+
 		private bool matchFingerState(Finger finger, PointingState requiredState)
 		{
 			return (requiredState == PointingState.Either) ||
@@ -140,5 +152,6 @@ namespace CustomLeapGestures
 		}
 
 		private enum PointingState { Extended, NotExtended, Either }
+		private enum WaveType { Single, Double}
 	}
 }
