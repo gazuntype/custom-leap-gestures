@@ -253,6 +253,11 @@ namespace CustomLeapGestures
 			}
 		}
 
+		bool CheckSwipeDirection(Vector3 finalDirection)
+		{
+			return true;
+		}
+
 
 		private bool matchFingerState(Finger finger, PointingState requiredState)
 		{
