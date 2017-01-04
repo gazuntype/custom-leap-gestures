@@ -19,9 +19,9 @@ namespace CustomLeapGestures
 		[Range(0, 360)]
 		public float handOffAngle = 45f;
 
-		[Tooltip("The minimum angle in degrees the wrist has to rotate to be considered a wave")]
+		[Tooltip("The minimum angle in degrees the hand has to rotate to be considered a wave")]
 		[Range(0, 180)]
-		public float wristAngle = 60f;
+		public float waveAngle = 60f;
 
 		[Tooltip("The maximum amount of time in seconds allowed to be used to complete a wave")]
 		public float maximumWaveTime = .5f;
@@ -74,7 +74,25 @@ namespace CustomLeapGestures
 
 		void Update()
 		{
-			SingleWristWaveWatcher();
+			switch (waveType)
+			{
+				case WaveType.Wrist:
+					switch (waveNumber)
+					{
+						case WaveNumber.Single:
+							SingleWristWaveWatcher();
+							break;
+					}
+					break;
+				case WaveType.Arm:
+					switch (waveNumber)
+					{
+						case WaveNumber.Single:
+							SingleArmWaveWatcher();
+							break;
+					}
+					break;
+			}
 		}
 
 		void OnEnable()
@@ -180,14 +198,115 @@ namespace CustomLeapGestures
 						isWaving = true;
 						Debug.Log("isWaving = " + isWaving);
 					}
-					if (isWaving && angleTo < wristAngle)
+					if (isWaving && angleTo < waveAngle)
 					{
 						waveTime += Time.deltaTime;
 					}
-					else if (isWaving && angleTo >= wristAngle && waveTime <= maximumWaveTime)
+					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
 					{
 						waveTime = 0;
 						isWaving = false;
+						Debug.Log("I just completed a single wrist wave.");
+						Activate();
+					}
+				}
+			}
+			if (waveTime >= maximumWaveTime)
+			{
+				waveTime = 0;
+				isWaving = false;
+			}
+		}
+
+		void DoubleWristWaveWatcher()
+		{
+			Hand hand;
+			Vector3 fingerDirection;
+			Vector3 targetDirection;
+			float angleTo;
+
+			if (handModel != null)
+			{
+				hand = handModel.GetLeapHand();
+				if (hand != null)
+				{
+					targetDirection = Vector3.up;
+					fingerDirection = hand.Fingers[2].Bone(Bone.BoneType.TYPE_DISTAL).Direction.ToVector3();
+					angleTo = Vector3.Angle(fingerDirection, targetDirection);
+					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
+					{
+						hasBegunWave = true;
+						Debug.Log("hasBegunWave = " + hasBegunWave);
+						if (doneSingleWave && waveTime <= maximumWaveTime)
+						{
+							Activate();
+							isWaving = false;
+							waveTime = 0;
+							doneSingleWave = false;
+							Debug.Log("I just completed a double wrist wave.");
+						}
+					}
+					if (hasBegunWave && !isFingerPointingUp)
+					{
+						hasBegunWave = false;
+						isWaving = true;
+						Debug.Log("isWaving = " + isWaving);
+					}
+					if (isWaving && angleTo < waveAngle)
+					{
+						waveTime += Time.deltaTime;
+					}
+					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
+					{
+						waveTime = 0;
+						doneSingleWave = true;
+					}
+				}
+			}
+			if (waveTime >= maximumWaveTime)
+			{
+				waveTime = 0;
+				isWaving = false;
+				doneSingleWave = false;
+			}
+		}
+
+
+		void SingleArmWaveWatcher()
+		{
+			Hand hand;
+			Vector3 armDirection;
+			Vector3 targetDirection;
+			float angleTo;
+
+			if (handModel != null)
+			{
+				hand = handModel.GetLeapHand();
+				if (hand != null)
+				{
+					targetDirection = Vector3.up;
+					armDirection = hand.Arm.Direction.ToVector3();
+					angleTo = Vector3.Angle(armDirection, targetDirection);
+					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
+					{
+						hasBegunWave = true;
+						Debug.Log("hasBegunWave = " + hasBegunWave);
+					}
+					if (hasBegunWave && !isFingerPointingUp)
+					{
+						hasBegunWave = false;
+						isWaving = true;
+						Debug.Log("isWaving = " + isWaving);
+					}
+					if (isWaving && angleTo < waveAngle)
+					{
+						waveTime += Time.deltaTime;
+					}
+					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
+					{
+						waveTime = 0;
+						isWaving = false;
+						Debug.Log("I just completed an arm wave");
 						Activate();
 					}
 				}
