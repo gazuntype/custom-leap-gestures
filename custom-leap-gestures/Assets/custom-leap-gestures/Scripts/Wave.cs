@@ -384,6 +384,5 @@ namespace CustomLeapGestures
 		}
 
 		private enum PointingState { Extended, NotExtended, Either }
-
 	}
 }
