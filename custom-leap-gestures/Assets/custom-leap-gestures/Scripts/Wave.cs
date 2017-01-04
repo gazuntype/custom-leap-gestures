@@ -82,6 +82,9 @@ namespace CustomLeapGestures
 						case WaveNumber.Single:
 							SingleWristWaveWatcher();
 							break;
+						case WaveNumber.Double:
+							DoubleWristWaveWatcher();
+							break;
 					}
 					break;
 				case WaveType.Arm:
@@ -237,7 +240,7 @@ namespace CustomLeapGestures
 					{
 						hasBegunWave = true;
 						Debug.Log("hasBegunWave = " + hasBegunWave);
-						if (doneSingleWave && waveTime <= maximumWaveTime)
+						if (doneSingleWave && waveTime <= maximumWaveTime && isWaving)
 						{
 							Activate();
 							isWaving = false;
