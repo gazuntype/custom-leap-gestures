@@ -30,12 +30,20 @@ namespace CustomLeapGestures
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
 		public IHandModel handModel = null;
 
+		[Tooltip("Wrist mode checks for waves that are done with only the wrist. Arm mode checks for whole arm waves.")]
+		public WaveType waveType;
+
+		[Tooltip("This is if it's a single wave or a double wave")]
+		public WaveNumber waveNumber;
+
 		float waveTime = 0;
 
 		private bool isFingerPointingUp = false;
 		private bool areFingersExtended = false;
 		private bool hasBegunWave = false;
 		private bool isWaving = false;
+		private bool isReturningWave = false;
+		private bool doneSingleWave = false;
 
 		public enum WaveNumber { Single, Double }
 		public enum WaveType { Wrist, Arm}
@@ -66,7 +74,7 @@ namespace CustomLeapGestures
 
 		void Update()
 		{
-			WaveWatcher();
+			SingleWristWaveWatcher();
 		}
 
 		void OnEnable()
@@ -146,7 +154,7 @@ namespace CustomLeapGestures
 			}
 		}
 
-		void WaveWatcher()
+		void SingleWristWaveWatcher()
 		{
 			Hand hand;
 			Vector3 fingerDirection;
@@ -176,13 +184,18 @@ namespace CustomLeapGestures
 					{
 						waveTime += Time.deltaTime;
 					}
-					else if (isWaving && angleTo >= wristAngle)
+					else if (isWaving && angleTo >= wristAngle && waveTime <= maximumWaveTime)
 					{
 						waveTime = 0;
 						isWaving = false;
-						Debug.Log("I just did a single wave");
+						Activate();
 					}
 				}
+			}
+			if (waveTime >= maximumWaveTime)
+			{
+				waveTime = 0;
+				isWaving = false;
 			}
 		}
 
