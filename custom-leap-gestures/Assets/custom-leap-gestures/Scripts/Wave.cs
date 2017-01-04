@@ -42,7 +42,6 @@ namespace CustomLeapGestures
 		private bool areFingersExtended = false;
 		private bool hasBegunWave = false;
 		private bool isWaving = false;
-		private bool isReturningWave = false;
 		private bool doneSingleWave = false;
 
 		public enum WaveNumber { Single, Double }
@@ -92,6 +91,9 @@ namespace CustomLeapGestures
 					{
 						case WaveNumber.Single:
 							SingleArmWaveWatcher();
+							break;
+						case WaveNumber.Double:
+							DoubleArmWaveWatcher();
 							break;
 					}
 					break;
@@ -318,6 +320,59 @@ namespace CustomLeapGestures
 			{
 				waveTime = 0;
 				isWaving = false;
+			}
+		}
+
+		void DoubleArmWaveWatcher()
+		{
+			Hand hand;
+			Vector3 armDirection;
+			Vector3 targetDirection;
+			float angleTo;
+
+			if (handModel != null)
+			{
+				hand = handModel.GetLeapHand();
+				if (hand != null)
+				{
+					targetDirection = Vector3.up;
+					armDirection = hand.Arm.Direction.ToVector3();
+					angleTo = Vector3.Angle(armDirection, targetDirection);
+					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
+					{
+						hasBegunWave = true;
+						Debug.Log("hasBegunWave = " + hasBegunWave);
+						if (doneSingleWave && waveTime <= maximumWaveTime && isWaving)
+						{
+							Activate();
+							isWaving = false;
+							waveTime = 0;
+							doneSingleWave = false;
+							Debug.Log("I just completed a double arm wave.");
+						}
+					}
+					if (hasBegunWave && !isFingerPointingUp)
+					{
+						hasBegunWave = false;
+						isWaving = true;
+						Debug.Log("isWaving = " + isWaving);
+					}
+					if (isWaving && angleTo < waveAngle)
+					{
+						waveTime += Time.deltaTime;
+					}
+					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
+					{
+						waveTime = 0;
+						doneSingleWave = true;
+					}
+				}
+			}
+			if (waveTime >= maximumWaveTime)
+			{
+				waveTime = 0;
+				isWaving = false;
+				doneSingleWave = false;
 			}
 		}
 
