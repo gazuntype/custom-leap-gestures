@@ -37,6 +37,9 @@ namespace CustomLeapGestures
 		private bool hasBegunWave = false;
 		private bool isWaving = false;
 
+		public enum WaveNumber { Single, Double }
+		public enum WaveType { Wrist, Arm}
+
 		private PointingState thumb = PointingState.Extended;
 		private PointingState index = PointingState.Extended;
 		private PointingState middle = PointingState.Extended;
@@ -191,6 +194,6 @@ namespace CustomLeapGestures
 		}
 
 		private enum PointingState { Extended, NotExtended, Either }
-		private enum WaveType { Single, Double}
+
 	}
 }
