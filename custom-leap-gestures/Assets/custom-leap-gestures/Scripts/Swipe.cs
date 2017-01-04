@@ -11,26 +11,26 @@ namespace CustomLeapGestures
 		[Tooltip("The interval in seconds at which to check this detector's conditions.")]
 		public float period = .1f;
 
-		[Tooltip("The angle in degrees of the fingers' pointing direction from the up direction in which to begin wave")]
+		[Tooltip("The angle in degrees of the fingers' pointing direction from the up direction in which to begin swipe")]
 		[Range(0, 360)]
 		public float handOnAngle = 30f;
 
-		[Tooltip("The angle in degrees of the fingers' point direction from the up direction in which to start tracking wave")]
+		[Tooltip("The angle in degrees of the fingers' point direction from the up direction in which to start tracking swipe")]
 		[Range(0, 360)]
 		public float handOffAngle = 45f;
 
-		[Tooltip("The minimum angle in degrees the hand has to rotate to be considered a wave")]
+		[Tooltip("The minimum angle in degrees the hand has to rotate to be considered a swipe")]
 		[Range(0, 180)]
 		public float swipeAngle = 60f;
 
-		[Tooltip("The maximum amount of time in seconds allowed to be used to complete a wave")]
+		[Tooltip("The maximum amount of time in seconds allowed to be used to complete a swipe")]
 		public float maximumSwipeTime = .5f;
 
 		[AutoFind(AutoFindLocations.Parents)]
 		[Tooltip("The hand model to watch. Set automatically if detector is on a hand.")]
 		public IHandModel handModel = null;
 
-		[Tooltip("Wrist mode checks for waves that are done with only the wrist. Arm mode checks for whole arm waves.")]
+		[Tooltip("Wrist mode checks for swipes that are done with only the wrist. Arm mode checks for whole arm swipe.")]
 		public SwipeType swipeType;
 
 		[Tooltip("Direction of swipe to detect")]
@@ -40,9 +40,8 @@ namespace CustomLeapGestures
 
 		private bool isFingerPointingUp = false;
 		private bool areFingersExtended = false;
-		private bool hasBegunWave = false;
-		private bool isWaving = false;
-		private bool doneSingleWave = false;
+		private bool hasBegunSwipe = false;
+		private bool isSwiping = false;
 
 		public enum SwipeType { Wrist, Arm }
 		public enum SwipeDirection { Left, Right, Up, Down }
@@ -73,29 +72,13 @@ namespace CustomLeapGestures
 
 		void Update()
 		{
-			switch (waveType)
+			switch (swipeType)
 			{
-				case WaveType.Wrist:
-					switch (waveNumber)
-					{
-						case WaveNumber.Single:
-							SingleWristWaveWatcher();
-							break;
-						case WaveNumber.Double:
-							DoubleWristWaveWatcher();
-							break;
-					}
+				case SwipeType.Wrist:
+					WristSwipeWatcher();
 					break;
-				case WaveType.Arm:
-					switch (waveNumber)
-					{
-						case WaveNumber.Single:
-							SingleArmWaveWatcher();
-							break;
-						case WaveNumber.Double:
-							DoubleArmWaveWatcher();
-							break;
-					}
+				case SwipeType.Arm:
+					ArmSwipeWatcher();
 					break;
 			}
 		}
@@ -125,7 +108,7 @@ namespace CustomLeapGestures
 					hand = handModel.GetLeapHand();
 					if (hand != null)
 					{
-						targetDirection = Vector3.up;
+						targetDirection = Vector3.forward;
 						fingerDirection = hand.Fingers[2].Bone(Bone.BoneType.TYPE_DISTAL).Direction.ToVector3();
 						float angleTo = Vector3.Angle(fingerDirection, targetDirection);
 						if (handModel.IsTracked && angleTo <= handOnAngle)
@@ -177,7 +160,7 @@ namespace CustomLeapGestures
 			}
 		}
 
-		void SingleWristWaveWatcher()
+		void WristSwipeWatcher()
 		{
 			Hand hand;
 			Vector3 fingerDirection;
@@ -192,92 +175,39 @@ namespace CustomLeapGestures
 					targetDirection = Vector3.up;
 					fingerDirection = hand.Fingers[2].Bone(Bone.BoneType.TYPE_DISTAL).Direction.ToVector3();
 					angleTo = Vector3.Angle(fingerDirection, targetDirection);
-					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
+					if (areFingersExtended && isFingerPointingUp && !hasBegunSwipe)
 					{
-						hasBegunWave = true;
-						Debug.Log("hasBegunWave = " + hasBegunWave);
+						hasBegunSwipe = true;
+						Debug.Log("hasBegunSwipe = " + hasBegunSwipe);
 					}
-					if (hasBegunWave && !isFingerPointingUp)
+					if (hasBegunSwipe && !isFingerPointingUp)
 					{
-						hasBegunWave = false;
-						isWaving = true;
-						Debug.Log("isWaving = " + isWaving);
+						hasBegunSwipe = false;
+						isSwiping = true;
+						Debug.Log("isSwiping = " + isSwiping);
 					}
-					if (isWaving && angleTo < waveAngle)
+					if (isSwiping && angleTo < swipeAngle)
 					{
-						waveTime += Time.deltaTime;
+						swipeTime += Time.deltaTime;
 					}
-					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
+					else if (isSwiping && angleTo >= swipeAngle && swipeTime <= maximumSwipeTime)
 					{
-						waveTime = 0;
-						isWaving = false;
-						Debug.Log("I just completed a single wrist wave.");
+						swipeTime = 0;
+						isSwiping = false;
+						Debug.Log("I just completed a single wrist swipe.");
 						Activate();
 					}
 				}
 			}
-			if (waveTime >= maximumWaveTime)
+			if (swipeTime >= maximumSwipeTime)
 			{
-				waveTime = 0;
-				isWaving = false;
-			}
-		}
-
-		void DoubleWristWaveWatcher()
-		{
-			Hand hand;
-			Vector3 fingerDirection;
-			Vector3 targetDirection;
-			float angleTo;
-
-			if (handModel != null)
-			{
-				hand = handModel.GetLeapHand();
-				if (hand != null)
-				{
-					targetDirection = Vector3.up;
-					fingerDirection = hand.Fingers[2].Bone(Bone.BoneType.TYPE_DISTAL).Direction.ToVector3();
-					angleTo = Vector3.Angle(fingerDirection, targetDirection);
-					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
-					{
-						hasBegunWave = true;
-						Debug.Log("hasBegunWave = " + hasBegunWave);
-						if (doneSingleWave && waveTime <= maximumWaveTime && isWaving)
-						{
-							Activate();
-							isWaving = false;
-							waveTime = 0;
-							doneSingleWave = false;
-							Debug.Log("I just completed a double wrist wave.");
-						}
-					}
-					if (hasBegunWave && !isFingerPointingUp)
-					{
-						hasBegunWave = false;
-						isWaving = true;
-						Debug.Log("isWaving = " + isWaving);
-					}
-					if (isWaving && angleTo < waveAngle)
-					{
-						waveTime += Time.deltaTime;
-					}
-					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
-					{
-						waveTime = 0;
-						doneSingleWave = true;
-					}
-				}
-			}
-			if (waveTime >= maximumWaveTime)
-			{
-				waveTime = 0;
-				isWaving = false;
-				doneSingleWave = false;
+				swipeTime = 0;
+				isSwiping = false;
 			}
 		}
 
 
-		void SingleArmWaveWatcher()
+		void ArmSwipeWatcher()
 		{
 			Hand hand;
 			Vector3 armDirection;
@@ -292,89 +222,37 @@ namespace CustomLeapGestures
 					targetDirection = Vector3.up;
 					armDirection = hand.Arm.Direction.ToVector3();
 					angleTo = Vector3.Angle(armDirection, targetDirection);
-					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
+					if (areFingersExtended && isFingerPointingUp && !hasBegunSwipe)
 					{
-						hasBegunWave = true;
-						Debug.Log("hasBegunWave = " + hasBegunWave);
+						hasBegunSwipe = true;
+						Debug.Log("hasBegunSwipe = " + hasBegunSwipe);
 					}
-					if (hasBegunWave && !isFingerPointingUp)
+					if (hasBegunSwipe && !isFingerPointingUp)
 					{
-						hasBegunWave = false;
-						isWaving = true;
-						Debug.Log("isWaving = " + isWaving);
+						hasBegunSwipe = false;
+						isSwiping = true;
+						Debug.Log("isSwiping = " + isSwiping);
 					}
-					if (isWaving && angleTo < waveAngle)
+					if (isSwiping && angleTo < swipeAngle)
 					{
-						waveTime += Time.deltaTime;
+						swipeTime += Time.deltaTime;
 					}
-					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
+					else if (isSwiping && angleTo >= swipeAngle && swipeTime <= maximumSwipeTime)
 					{
-						waveTime = 0;
-						isWaving = false;
-						Debug.Log("I just completed an arm wave");
+						swipeTime = 0;
+						isSwiping = false;
+						Debug.Log("I just completed an arm swipe");
 						Activate();
 					}
 				}
 			}
-			if (waveTime >= maximumWaveTime)
+			if (swipeTime >= maximumSwipeTime)
 			{
-				waveTime = 0;
-				isWaving = false;
+				swipeTime = 0;
+				isSwiping = false;
 			}
 		}
 
-		void DoubleArmWaveWatcher()
-		{
-			Hand hand;
-			Vector3 armDirection;
-			Vector3 targetDirection;
-			float angleTo;
-
-			if (handModel != null)
-			{
-				hand = handModel.GetLeapHand();
-				if (hand != null)
-				{
-					targetDirection = Vector3.up;
-					armDirection = hand.Arm.Direction.ToVector3();
-					angleTo = Vector3.Angle(armDirection, targetDirection);
-					if (areFingersExtended && isFingerPointingUp && !hasBegunWave)
-					{
-						hasBegunWave = true;
-						Debug.Log("hasBegunWave = " + hasBegunWave);
-						if (doneSingleWave && waveTime <= maximumWaveTime && isWaving)
-						{
-							Activate();
-							isWaving = false;
-							waveTime = 0;
-							doneSingleWave = false;
-							Debug.Log("I just completed a double arm wave.");
-						}
-					}
-					if (hasBegunWave && !isFingerPointingUp)
-					{
-						hasBegunWave = false;
-						isWaving = true;
-						Debug.Log("isWaving = " + isWaving);
-					}
-					if (isWaving && angleTo < waveAngle)
-					{
-						waveTime += Time.deltaTime;
-					}
-					else if (isWaving && angleTo >= waveAngle && waveTime <= maximumWaveTime)
-					{
-						waveTime = 0;
-						doneSingleWave = true;
-					}
-				}
-			}
-			if (waveTime >= maximumWaveTime)
-			{
-				waveTime = 0;
-				isWaving = false;
-				doneSingleWave = false;
-			}
-		}
 
 		private bool matchFingerState(Finger finger, PointingState requiredState)
 		{
