@@ -194,8 +194,11 @@ namespace CustomLeapGestures
 					{
 						swipeTime = 0;
 						isSwiping = false;
-						Debug.Log("I just completed a single wrist swipe.");
-						Activate();
+						if (CheckSwipeDirection(hand.Fingers[2].Bone(Bone.BoneType.TYPE_DISTAL).Direction.ToVector3()))
+						{
+							Debug.Log("I just completed a single wrist swipe.");
+							Activate();
+						}
 					}
 				}
 			}
@@ -241,8 +244,11 @@ namespace CustomLeapGestures
 					{
 						swipeTime = 0;
 						isSwiping = false;
-						Debug.Log("I just completed an arm swipe");
-						Activate();
+						if (CheckSwipeDirection(hand.Arm.Direction.ToVector3()))
+						{
+							Debug.Log("I just completed an arm swipe");
+							Activate();
+						}
 					}
 				}
 			}
