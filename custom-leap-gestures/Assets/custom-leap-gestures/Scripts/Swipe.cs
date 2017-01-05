@@ -253,9 +253,73 @@ namespace CustomLeapGestures
 			}
 		}
 
+		string CheckMaxAxis(Vector3 finalDirection)
+		{
+			float maxDirection = Mathf.Max(Mathf.Abs(finalDirection.x), Mathf.Abs(finalDirection.y));
+			string direction = "none";
+			if (maxDirection == Mathf.Abs(finalDirection.x))
+			{
+				if (maxDirection < 0)
+				{
+					direction = "left";
+				}
+				else if (maxDirection > 0)
+				{
+					direction = "right";
+				}
+			}
+			else if (maxDirection == Mathf.Abs(finalDirection.y))
+			{
+				if (maxDirection < 0)
+				{
+					direction = "down";
+				}
+				else if (maxDirection > 0)
+				{
+					direction = "up";
+				}
+			}
+			else {
+				return "none";
+			}
+			return direction;
+		}
+
 		bool CheckSwipeDirection(Vector3 finalDirection)
 		{
-			return true;
+			string direction = CheckMaxAxis(finalDirection);
+			bool returnValue = false;
+			switch (swipeDirection)
+			{
+				case SwipeDirection.Down:
+					if (direction == "down")
+					{
+						returnValue = true;
+					}
+					break;
+				case SwipeDirection.Left:
+					if (direction == "left")
+					{
+						returnValue = true;
+					}
+					break;
+				case SwipeDirection.Right:
+					if (direction == "right")
+					{
+						returnValue = true;
+					}
+					break;
+				case SwipeDirection.Up:
+					if (direction == "up")
+					{
+						returnValue = true;
+					}
+					break;
+				default:
+					returnValue = false;
+					break;
+			}
+			return returnValue;
 		}
 
 
