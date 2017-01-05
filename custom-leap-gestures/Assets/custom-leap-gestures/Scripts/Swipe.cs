@@ -265,22 +265,22 @@ namespace CustomLeapGestures
 			string direction = "none";
 			if (maxDirection == Mathf.Abs(finalDirection.x))
 			{
-				if (maxDirection < 0)
+				if (finalDirection.x < 0)
 				{
 					direction = "left";
 				}
-				else if (maxDirection > 0)
+				else if (finalDirection.x > 0)
 				{
 					direction = "right";
 				}
 			}
 			else if (maxDirection == Mathf.Abs(finalDirection.y))
 			{
-				if (maxDirection < 0)
+				if (finalDirection.y < 0)
 				{
 					direction = "down";
 				}
-				else if (maxDirection > 0)
+				else if (finalDirection.y > 0)
 				{
 					direction = "up";
 				}
@@ -288,6 +288,7 @@ namespace CustomLeapGestures
 			else {
 				return "none";
 			}
+			Debug.Log(direction);
 			return direction;
 		}
 
